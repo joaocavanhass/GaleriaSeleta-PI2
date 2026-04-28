@@ -1,34 +1,87 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Produto } from '../core/models/produto.model';
+import { PRODUTOS_MOCK } from '../core/mocks/produtos.mock';
+
+export interface SlideHero {
+  id: number;
+  url: string;
+  alt: string;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
+  styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
 
-  slideAtual = 0;
+  constructor(@Inject(PLATFORM_ID) private platformId: object) {}
 
-  slides = [
-    { titulo: 'Encontre Peças', italico: 'únicas',    subtitulo: 'Descubra tesouro vintage e peças exclusivas' },
-    { titulo: 'Curadoria com',  italico: 'alma',       subtitulo: 'Cada peça carrega uma história única'        },
-    { titulo: 'Estilo',         italico: 'atemporal',  subtitulo: 'Moda que transcende tendências'              },
+  // ── Carrossel Hero ──────────────────────────────────────────
+  slides: SlideHero[] = [
+    { id: 1, url: '', alt: 'Coleção primavera' },
+    { id: 2, url: '', alt: 'Peças exclusivas' },
+    { id: 3, url: '', alt: 'Novidades da semana' },
   ];
+  currentSlide = 0;
+  private autoplayTimer: ReturnType<typeof setInterval> | null = null;
 
-  categorias = ['Roupas', 'Acessórios', 'Decoração', 'Calçados'];
+  // ── Marquee Novidades ────────────────────────────────────────
+  produtosNovidades: Produto[] = PRODUTOS_MOCK
+    .filter(p => p.status === 'ativo')
+    .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime())
+    .slice(0, 8);
 
-  dropdownAberto = false;
-
-  next() {
-    this.slideAtual = (this.slideAtual + 1) % this.slides.length;
+  get produtosMarquee(): Produto[] {
+    return [...this.produtosNovidades, ...this.produtosNovidades];
   }
 
-  prev() {
-    this.slideAtual = (this.slideAtual - 1 + this.slides.length) % this.slides.length;
+  // ── Lifecycle ────────────────────────────────────────────────
+  ngOnInit(): void {
+    // Autoplay apenas no browser — evita travar o prerender SSR
+    if (isPlatformBrowser(this.platformId)) {
+      this.iniciarAutoplay();
+    }
   }
 
+  ngOnDestroy(): void {
+    this.pararAutoplay();
+  }
+
+  // ── Métodos do Carrossel ─────────────────────────────────────
+  iniciarAutoplay(): void {
+    this.autoplayTimer = setInterval(() => this.proximo(), 4000);
+  }
+
+  pararAutoplay(): void {
+    if (this.autoplayTimer) {
+      clearInterval(this.autoplayTimer);
+      this.autoplayTimer = null;
+    }
+  }
+
+  proximo(): void {
+    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+  }
+
+  anterior(): void {
+    this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+  }
+
+  irPara(index: number): void {
+    this.currentSlide = index;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────
+  precoFinal(p: Produto): number {
+    return p.preco_desconto ?? p.preco;
+  }
+
+  temDesconto(p: Produto): boolean {
+    return p.preco_desconto !== null && p.preco_desconto < p.preco;
+  }
 }
