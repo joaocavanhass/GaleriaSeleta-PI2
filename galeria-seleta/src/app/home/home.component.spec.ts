@@ -74,7 +74,7 @@ describe('HomeComponent', () => {
 
   it('deve exibir o nome do primeiro produto', () => {
     const nome = fixture.nativeElement.querySelector('.card__nome');
-    expect(nome.textContent).toContain('Produto 1');
+    expect(nome.textContent).toContain('Camiseta Grafite');
   });
 
   it('deve exibir o título do slide atual', () => {
