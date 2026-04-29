@@ -1,0 +1,65 @@
+.footer {
+  background: #e5e5e5;
+  padding: 40px 60px;
+  font-family: Arial, sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.footer-section {
+  width: 30%;
+}
+
+.footer-section h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.footer-section p {
+  font-size: 12px;
+  margin: 5px 0;
+}
+
+.footer-section a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #333;
+  text-decoration: underline;
+}
+
+.form .row {
+  display: flex;
+  gap: 10px;
+}
+
+.form input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #333;
+  background: transparent;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.form textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #333;
+  background: transparent;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.form button {
+  width: 100%;
+  background: #6b6b6b;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+}
