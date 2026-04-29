@@ -72,8 +72,8 @@
         @for (produto of produtosMarquee; track $index) {
           <div class="marquee-card" [routerLink]="['/produtos']">
             <div class="card-imagem">
-              @if (produto.imagens && produto.imagens[0].url) {
-                <img [src]="produto.imagens[0].url" [alt]="produto.nome" />
+              @if (produto.imagem_url) {
+                <img [src]="produto.imagem_url" [alt]="produto.nome" />
               }
             </div>
             <div class="card-info">

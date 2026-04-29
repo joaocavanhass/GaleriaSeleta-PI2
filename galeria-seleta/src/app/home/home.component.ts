@@ -32,8 +32,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Marquee Novidades ────────────────────────────────────────
   produtosNovidades: Produto[] = PRODUTOS_MOCK
-    .filter(p => p.status === 'ativo')
-    .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime())
+    .filter((p: Produto) => p.status === 'ativo')
+    .sort((a: Produto, b: Produto) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime())
     .slice(0, 8);
 
   get produtosMarquee(): Produto[] {
