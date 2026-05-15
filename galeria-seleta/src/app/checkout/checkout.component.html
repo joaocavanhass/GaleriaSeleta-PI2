@@ -115,25 +115,49 @@
 
         <section class="bloco resumo">
           <h2 class="bloco__titulo">Resumo do pedido</h2>
+
+          <!-- Itens do carrinho -->
+          <div class="resumo-itens">
+            @for (item of itens; track item.id) {
+              <div class="resumo-item">
+                <img class="resumo-item__img" [src]="item.imagem" [alt]="item.nome" />
+                <div class="resumo-item__info">
+                  <span class="resumo-item__nome">{{ item.nome }}</span>
+                  @if (item.tamanho) {
+                    <span class="resumo-item__detalhe">Tam: {{ item.tamanho }}</span>
+                  }
+                  <span class="resumo-item__detalhe">Qtd: {{ item.quantidade }}</span>
+                </div>
+                <span class="resumo-item__preco">{{ item.preco * item.quantidade | currency:'BRL' }}</span>
+              </div>
+            }
+          </div>
+
           <div class="resumo-linhas">
             <div class="resumo-linha">
-              <span>Subtotal <span class="muted">(2 itens)</span></span>
+              <span>Subtotal <span class="muted">({{ totalItens }} {{ totalItens === 1 ? 'item' : 'itens' }})</span></span>
               <span>{{ subtotal | currency:'BRL' }}</span>
             </div>
             <div class="resumo-linha">
               <span>Frete</span>
               <span>{{ freteValor === 0 ? 'Grátis' : (freteValor | currency:'BRL') }}</span>
             </div>
+            @if (desconto > 0) {
+              <div class="resumo-linha resumo-linha--desconto">
+                <span>Cupom ({{ carrinho.cupom() }})</span>
+                <span>– {{ desconto | currency:'BRL' }}</span>
+              </div>
+            }
             @if (descontoAtivo) {
               <div class="resumo-linha resumo-linha--desconto">
-                <span>Desconto PIX</span>
-                <span>– {{ desconto | currency:'BRL' }}</span>
+                <span>Desconto PIX (10%)</span>
+                <span>– {{ descontoPix | currency:'BRL' }}</span>
               </div>
             }
           </div>
           <div class="resumo-sep"></div>
           <div class="resumo-total">
-            <span>Total com desconto</span>
+            <span>Total</span>
             <span class="resumo-total__valor">{{ totalFinal | currency:'BRL' }}</span>
           </div>
           <button class="btn-confirmar" (click)="confirmar()">

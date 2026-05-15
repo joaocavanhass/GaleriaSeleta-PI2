@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { CarrinhoService } from '../core/services/carrinho.service';
 
 export type FreteId = 'padrao' | 'expresso' | 'retirada';
 export type PagtoId = 'cartao' | 'pix' | 'dinheiro' | 'boleto';
@@ -22,21 +23,26 @@ export interface PagtoOpcao {
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, RouterLink],
+  imports: [CommonModule, CurrencyPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css',
 })
 export class CheckoutComponent {
 
-  constructor(private router: Router) {}
+  private router   = inject(Router);
+  readonly carrinho = inject(CarrinhoService);
 
   // ── Dados mockados ──────────────────────────────────────────
-  readonly usuario = { nome: 'Eduardo Albuquerque', tel: '(11) 90000-0000', endereco: 'Condomínio Arali – Casa Ryan, SP' };
+  readonly usuario = {
+    nome: 'Eduardo Albuquerque',
+    tel: '(11) 90000-0000',
+    endereco: 'Condomínio Arali – Casa Ryan, SP'
+  };
 
   readonly freteOpcoes: FreteOpcao[] = [
-    { id: 'padrao',   label: 'Padrão',          prazo: '5 – 7 Dias',  preco: 29.90 },
-    { id: 'expresso', label: 'Expresso',         prazo: '1 – 3 Dias',  preco: 54.90 },
-    { id: 'retirada', label: 'Retirada na loja', prazo: '1 – 2 Dias',  preco: null  },
+    { id: 'padrao',   label: 'Padrão',          prazo: '5 – 7 Dias', preco: 29.90 },
+    { id: 'expresso', label: 'Expresso',         prazo: '1 – 3 Dias', preco: 54.90 },
+    { id: 'retirada', label: 'Retirada na loja', prazo: '1 – 2 Dias', preco: null  },
   ];
 
   readonly pagtoOpcoes: PagtoOpcao[] = [
@@ -53,25 +59,27 @@ export class CheckoutComponent {
   numeroPedido     = signal<number>(0);
   copiado          = signal<boolean>(false);
 
-  // ── Mocks de pagamento ───────────────────────────────────────
   readonly codigoPix = 'DN4QSND1Z91H2S3HY84TH5JAD4J8NQDBU923O9BHJ3DC4JE3XLANSFS7PAHHDF29B3S4UHAUSD1PJ3HDJBFA2PB3DR023WJADN4XHSL8NKJES71JEB23Q3XKSB3U4HUGJ3KL3DJ';
 
-  // ── Totais ──────────────────────────────────────────────────
-  readonly subtotal = 480.00;
-  readonly desconto = 48.00;
+  // ── Totais vindos do serviço ────────────────────────────────
+  get subtotal(): number { return this.carrinho.subtotal(); }
+  get desconto(): number { return this.carrinho.desconto(); }
+  get totalItens(): number { return this.carrinho.totalItens(); }
+  get itens() { return this.carrinho.itens(); }
 
   get freteValor(): number {
     return this.freteOpcoes.find(f => f.id === this.freteSelecionado())?.preco ?? 0;
   }
 
-  get totalFinal(): number {
-    const desc = this.pagtoSelecionado() === 'pix' ? this.desconto : 0;
-    return this.subtotal + this.freteValor - desc;
+  get descontoPix(): number {
+    return this.pagtoSelecionado() === 'pix' ? this.subtotal * 0.1 : 0;
   }
 
-  get descontoAtivo(): boolean {
-    return this.pagtoSelecionado() === 'pix';
+  get totalFinal(): number {
+    return this.subtotal + this.freteValor - this.desconto - this.descontoPix;
   }
+
+  get descontoAtivo(): boolean { return this.descontoPix > 0; }
 
   get labelPagto(): string {
     const map: Record<PagtoId, string> = {
@@ -95,6 +103,7 @@ export class CheckoutComponent {
 
   finalizarPagamento(): void {
     this.step.set(3);
+    this.carrinho.limparCarrinho();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -103,14 +112,8 @@ export class CheckoutComponent {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  irParaHome(): void {
-    this.router.navigate(['/']);
-  }
-
-  irParaPedidos(): void {
-    // ajuste a rota conforme existir no projeto
-    this.router.navigate(['/']);
-  }
+  irParaHome(): void    { this.router.navigate(['/']); }
+  irParaPedidos(): void { this.router.navigate(['/']); }
 
   copiarCodigo(): void {
     navigator.clipboard.writeText(this.codigoPix).then(() => {

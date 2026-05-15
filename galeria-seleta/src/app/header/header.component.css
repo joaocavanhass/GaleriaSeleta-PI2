@@ -203,3 +203,24 @@
   .logo-nome { font-size: 1rem; }
   .header-nav { gap: 24px; padding: 10px 16px; }
 }
+/* ── Badge do carrinho ───────────────── */
+.btn-carrinho {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #111;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}

@@ -71,9 +71,14 @@
         </div>
       </div>
 
-      <button class="btn-comprar" (click)="comprar()">
-        COMPRAR AGORA &rsaquo;
-      </button>
+      <div class="btns-acao">
+        <button class="btn-add-carrinho" (click)="adicionarAoCarrinho()">
+          {{ adicionado ? '✓ Adicionado!' : 'Adicionar ao carrinho' }}
+        </button>
+        <button class="btn-comprar" (click)="comprar()">
+          COMPRAR AGORA &rsaquo;
+        </button>
+      </div>
 
     </div>
 

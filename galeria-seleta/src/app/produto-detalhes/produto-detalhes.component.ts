@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Produto } from '../core/models/produto.model';
 import { PRODUTOS_MOCK } from '../core/mocks/produtos.mock';
+import { CarrinhoService } from '../core/services/carrinho.service';
 
 @Component({
   selector: 'app-produto-detalhes',
@@ -16,22 +17,23 @@ export class ProdutoDetalhesComponent implements OnInit {
   imagemSelecionada = 0;
   tamanhoSelecionado: string | null = null;
   quantidade = 1;
+  adicionado = false;
 
   readonly tamanhos = ['PP', 'P', 'M', 'G', 'GG'];
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  private route    = inject(ActivatedRoute);
+  private router   = inject(Router);
+  private carrinho = inject(CarrinhoService);
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.produto = PRODUTOS_MOCK.find(p => p.id === id) ?? null;
-    if (!this.produto) {
-      this.router.navigate(['/produtos']);
-    }
+    if (!this.produto) this.router.navigate(['/produtos']);
   }
 
   get imagemAtual(): string {
     if (!this.produto) return '';
-    if (this.produto.imagens && this.produto.imagens.length > 0) {
+    if (this.produto.imagens?.length) {
       return this.produto.imagens[this.imagemSelecionada]?.url ?? '';
     }
     return this.produto.imagem_url ?? '';
@@ -44,22 +46,38 @@ export class ProdutoDetalhesComponent implements OnInit {
 
   get temDesconto(): boolean {
     if (!this.produto) return false;
-    return this.produto.preco_desconto !== null && this.produto.preco_desconto < this.produto.preco;
+    return !!this.produto.preco_desconto && this.produto.preco_desconto < this.produto.preco;
   }
 
-  selecionarTamanho(t: string) {
-    this.tamanhoSelecionado = t;
-  }
+  selecionarTamanho(t: string) { this.tamanhoSelecionado = t; }
+  diminuirQtd() { if (this.quantidade > 1) this.quantidade--; }
+  aumentarQtd() { if (this.quantidade < 10) this.quantidade++; }
 
-  diminuirQtd() {
-    if (this.quantidade > 1) this.quantidade--;
-  }
+  adicionarAoCarrinho() {
+    if (!this.produto) return;
+    this.carrinho.adicionarItem({
+      id:        this.produto.id,
+      nome:      this.produto.nome,
+      descricao: this.produto.descricao ?? '',
+      preco:     this.precoFinal,
+      imagem:    this.imagemAtual,
+      tamanho:   this.tamanhoSelecionado ?? undefined,
+    }, this.quantidade);
 
-  aumentarQtd() {
-    if (this.quantidade < 10) this.quantidade++;
+    this.adicionado = true;
+    setTimeout(() => (this.adicionado = false), 2000);
   }
 
   comprar() {
-    this.router.navigate(['/checkout']);
+    if (!this.produto) return;
+    this.carrinho.adicionarItem({
+      id:        this.produto.id,
+      nome:      this.produto.nome,
+      descricao: this.produto.descricao ?? '',
+      preco:     this.precoFinal,
+      imagem:    this.imagemAtual,
+      tamanho:   this.tamanhoSelecionado ?? undefined,
+    }, this.quantidade);
+    this.router.navigate(['/carrinho']);
   }
 }
