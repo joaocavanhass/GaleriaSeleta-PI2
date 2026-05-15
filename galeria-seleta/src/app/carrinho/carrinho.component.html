@@ -1,0 +1,108 @@
+<div class="cart-page">
+
+  <div class="cart-container">
+
+    <h1 class="cart-title">Sacola de compras</h1>
+
+    <!-- LISTA -->
+    <div class="cart-list">
+
+      <div class="cart-item" *ngFor="let item of itens">
+
+        <div class="item-image">
+          <img [src]="item.imagem" [alt]="item.nome">
+        </div>
+
+        <div class="item-info">
+
+          <div class="item-top">
+            <div>
+              <h2>{{ item.nome }}</h2>
+              <p>{{ item.descricao }}</p>
+            </div>
+
+            <button
+              class="remove-btn"
+              (click)="removerItem(item.id)">
+              ✕
+            </button>
+          </div>
+
+          <div class="item-bottom">
+
+            <div class="quantity-box">
+
+              <button (click)="diminuirQtd(item)">
+                -
+              </button>
+
+              <span>{{ item.quantidade }}</span>
+
+              <button (click)="aumentarQtd(item)">
+                +
+              </button>
+
+            </div>
+
+            <div class="price">
+              {{
+                item.preco * item.quantidade
+                | currency:'BRL'
+              }}
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CUPOM -->
+    <div class="coupon-area">
+
+      <input
+        type="text"
+        placeholder="Cupom de desconto"
+        [(ngModel)]="cupom">
+
+      <button (click)="aplicarCupom()">
+        Aplicar
+      </button>
+
+    </div>
+
+    <!-- RESUMO -->
+    <div class="summary">
+
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <span>{{ subtotal | currency:'BRL' }}</span>
+      </div>
+
+      <div class="summary-line">
+        <span>Frete</span>
+        <span>Grátis</span>
+      </div>
+
+      <div class="summary-line desconto">
+        <span>Desconto</span>
+        <span>- {{ desconto | currency:'BRL' }}</span>
+      </div>
+
+      <div class="summary-total">
+        <span>Total</span>
+        <span>{{ total | currency:'BRL' }}</span>
+      </div>
+
+    </div>
+
+    <!-- BOTÃO -->
+    <button class="checkout-btn">
+      Finalizar compra
+    </button>
+
+  </div>
+
+</div>
