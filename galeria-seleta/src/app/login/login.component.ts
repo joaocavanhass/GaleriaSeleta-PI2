@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { AdminAuthService } from '../admin/services/admin-auth.service';
 
 interface FormLogin {
   email: string;
@@ -18,28 +19,19 @@ interface FormLogin {
 })
 export class LoginComponent {
 
-  /* ── Dados do formulário ── */
-  form: FormLogin = {
-    email: '',
-    senha: '',
-    lembrar: false
-  };
+  form: FormLogin = { email: '', senha: '', lembrar: false };
 
-  /* ── Visibilidade da senha ── */
   mostrarSenha = false;
-
-  /* ── Campos tocados ── */
-  emailTocado = false;
-  senhaTocada = false;
-
-  /* ── Estado de envio ── */
-  carregando = false;
+  emailTocado  = false;
+  senhaTocada  = false;
+  carregando   = false;
   mensagemSucesso = '';
-  mensagemErro = '';
+  mensagemErro    = '';
 
-  /* ══════════════════════════════════════════════
-     VALIDAÇÕES
-  ══════════════════════════════════════════════ */
+  constructor(
+    private router: Router,
+    private adminAuth: AdminAuthService
+  ) {}
 
   get emailValido(): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email);
@@ -52,10 +44,6 @@ export class LoginComponent {
   get formularioValido(): boolean {
     return this.emailValido && this.senhaValida;
   }
-
-  /* ══════════════════════════════════════════════
-     ENVIO
-  ══════════════════════════════════════════════ */
 
   onSubmit(): void {
     this.emailTocado = true;
@@ -70,11 +58,19 @@ export class LoginComponent {
 
     this.carregando = true;
 
-    /* Substituir pela chamada real de autenticação */
     setTimeout(() => {
       this.carregando = false;
+
+      // Verifica se é admin → redireciona para o painel
+      const isAdmin = this.adminAuth.tryAdminLogin(this.form.email, this.form.senha);
+      if (isAdmin) {
+        this.router.navigate(['/admin/dashboard']);
+        return;
+      }
+
+      // Usuário comum → substituir pela autenticação real
       this.mensagemSucesso = 'Login realizado com sucesso!';
-      /* Em produção: this.router.navigate(['/']) */
-    }, 1500);
+      this.router.navigate(['/']);
+    }, 1000);
   }
 }

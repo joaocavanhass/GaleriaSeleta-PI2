@@ -10,14 +10,18 @@ import { CheckoutComponent } from './checkout/checkout.component';
 import { CarrinhoComponent } from './carrinho/carrinho.component';
 
 export const routes: Routes = [
-  { path: '',              component: HomeComponent             },
-  { path: 'cadastro',      component: CadastroComponent         },
-  { path: 'login',         component: LoginComponent            },
-  { path: 'esqueci-senha', component: EsqueciSenhaComponent     },
-  { path: 'sobre',         component: SobreComponent            },
-  { path: 'produtos',      component: ProdutosComponent         },
-  { path: 'produtos/:id',  component: ProdutoDetalhesComponent  },
-  { path: 'checkout',      component: CheckoutComponent         },
-  { path: 'carrinho',      component: CarrinhoComponent },
-  { path: '**',            redirectTo: ''                       }
+  { path: '',              component: HomeComponent            },
+  { path: 'cadastro',      component: CadastroComponent        },
+  { path: 'login',         component: LoginComponent           },
+  { path: 'esqueci-senha', component: EsqueciSenhaComponent    },
+  { path: 'sobre',         component: SobreComponent           },
+  { path: 'produtos',      component: ProdutosComponent        },
+  { path: 'produtos/:id',  component: ProdutoDetalhesComponent },
+  { path: 'checkout',      component: CheckoutComponent        },
+  { path: 'carrinho',      component: CarrinhoComponent        },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes').then(m => m.adminRoutes)
+  },
+  { path: '**', redirectTo: '' }
 ];
